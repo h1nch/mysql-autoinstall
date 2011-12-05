@@ -59,9 +59,8 @@ END
 puts summary.result
 print " \033[31mDo you want to proceed?  Type 'yes' and press enter if so. \033[0m"
 
-#DEV: Short circuit
-# input = gets.strip
-# raise "You didn't say yes. Exiting." if input != "yes"
+input = gets.strip
+raise "You didn't say yes. Exiting." if input != "yes"
 puts
 
 ##############################################################################
