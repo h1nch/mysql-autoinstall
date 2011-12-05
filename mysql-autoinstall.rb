@@ -4,6 +4,9 @@ require 'yaml'
 require 'erb'
 require 'pp'
 
+# Set to true for lots of verboseness from commands.
+DEBUG = false
+
 def gprint(message)
   print "\033[32m#{message}\033[0m"
 end
@@ -16,7 +19,11 @@ def execwrap(commands, checkretval = false)
   if commands.kind_of?(Array)
     commands.each { |command| execwrap(command,checkretval)}
   elsif commands.kind_of?(String)
-    puts system("#{commands} 2>&1")
+    if DEBUG
+      system("#{commands}") 
+    else
+      `#{commands} 2>&1`
+    end
     raise "Command failed.\n#{commands}" if (checkretval && $? != 0)
   else
     raise "execwrap only takes an array or string as a first argument"
@@ -273,7 +280,13 @@ if ONPRIMARY
   execwrap("mkdir -v /etc/mysql/ssl/")
   execwrap(%{openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout /etc/mysql/ssl/server.key -out /etc/mysql/ssl/server.crt -subj "/C=US/ST=Texas/L=San Antonio/O=My Organization/OU=My Org Unit/CN=#{CONFIG[:cluster_details][:viphostname]}"},true)
   execwrap("rsync -av /etc/mysql/ssl #{CONFIG[:secondary][:hostname]}:/etc/mysql/",true)
-  
+
+  gputs "Ensuring MySQL is up and responding before we secure it... "
+  while true do
+    break if `mysqladmin ping -u root -ptemporarypassword`.match(/mysqld is alive/)
+    sleep 1
+  end
+
   gputs "Securing the MySQL installation... "
   tmpmysql = <<-EOF
 DELETE FROM mysql.user WHERE User='';
