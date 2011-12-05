@@ -1,0 +1,12 @@
+--- 
+:primary: 
+  :ip: 192.168.20.210
+  :hostname: db1
+:secondary: 
+  :ip: 192.168.20.209
+  :hostname: db2
+:cluster_details: 
+  :devicefordrbd: /dev/xvdb1
+  :vip: 192.168.20.199
+  :viphostname: db
+  

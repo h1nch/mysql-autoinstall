@@ -1,0 +1,14 @@
+resource mysql {
+  syncer {
+    rate            100M;
+  }
+  disk              /dev/mapper/vg-mysql;
+  device            /dev/drbd0;
+  meta-disk         internal;
+  on <%=CONFIG[:primary][:hostname]%> {
+    address   <%=CONFIG[:primary][:ip]%>:7789;
+  }
+  on <%=CONFIG[:secondary][:hostname]%> {
+    address   <%=CONFIG[:secondary][:ip]%>:7789;
+  }
+}
